@@ -1,76 +1,183 @@
-[简体中文](./README.md) | English
+<div align=center>
 
-![](https://img.shields.io/node/v/html2canvas) ![](https://img.shields.io/npm/l/html2canvas) ![](https://img.shields.io/github/last-commit/wave-charts/avatar-gen)
+# Avatar Generator
 
-# Avatar Genrator
+[![version](https://img.shields.io/github/package-json/v/CarmJos/avatar-generator)](https://github.com/CarmJos/avatar-generator)
+[![License](https://img.shields.io/github/license/CarmJos/avatar-generator)](https://www.gnu.org/licenses/lgpl-3.0.html)
+[![workflow](https://github.com/CarmJos/avatar-generator/actions/workflows/node.js.yml/badge.svg)](https://github.com/CarmJos/avatar-generator/actions/workflows/node.js.yml)
+![CodeSize](https://img.shields.io/github/languages/code-size/CarmJos/avatar-generator)
 
-## Introduction
+README LANGUAGES [ [English](README-EN.md) | [**中文**](README.md)  ]
 
-A web platform to create random avatar,
+</div>
 
-Live demo: [https://avatar.waveapp.cn](https://avatar.waveapp.cn)
+# Avatar Generator
 
-Preview: 
+_**"Seed-based random avatar generation with Gravatar integration"**_
 
-![](./assets/doc/mobile-preview-en.gif)
+An avatar generator with API support that generates fixed random avatars from seeds, and supports fetching user avatars from Gravatar.
 
-## Run
+## Features
 
-> base on `vue@2.x`,  make sure that `node` has been installed on your device
+- **Seed Generation**: Same seed always produces the same avatar combination
+- **Gravatar Integration**: Support fetching Gravatar avatars via email or MD5
+- **API Interface**: RESTful API for easy integration into other projects
+- **Cache Support**: Configurable cache strategy for better performance
+- **Mirror Configuration**: Custom Gravatar mirror URL support
+- **Frontend Preview**: Retained frontend page for testing and preview
 
-1. clone repository
+## Quick Start
+
+### Requirements
+
+- Node.js >= 14.0.0
+- npm or yarn
+
+### Installation & Running
 
 ```bash
-git clone https://github.com/wave-charts/avatar-gen.git
-cd chart-gen
-```
+# Clone repository
+git clone https://github.com/CarmJos/avatar-generator.git
+cd avatar-generator
 
-2. run project
-
-**Run with Yarn**
-
-```bash
-yarn
-yarn serve
-```
-
-**Run with npm**
-
-```bash
+# Install dependencies
 npm install
+
+# Start service (includes frontend and API)
+npm run server
+```
+
+After service starts, visit `http://localhost:3000` to use.
+
+### Frontend Development Only
+
+```bash
 npm run serve
 ```
 
-## Custom
+## API Usage
 
-> These resource in project can be found at Figma community: [https://www.figma.com/community/file/829741575478342595/Avatar-Illustration-System](https://www.figma.com/community/file/829741575478342595/Avatar-Illustration-System)
+### Generate Avatar
 
-
-```ts
-export const avatarConfig: Record<LayerType, LayerConfig[]> = {
-  // 头
-  Base: [
-    {
-      id: 1,  // 素材文件夹下的文件名， eg: `src/views/resource/Base/1.vue`
-      colorLib: colorLib.skin,  // 可用颜色的集合
-      weight: 5,  // 权重，影响出现的概率
-    },
-  ],
-
-  // 耳朵
-  Ear: [
-    {
-      id: 1,  // eg: `src/views/resource/Ear/1.vue`
-      colorRefer: "Base", // 设置颜色跟随， eg: Ear 的颜色跟随 Base (即耳朵的颜色和头保持一致)
-      weight: 1,
-    },
-    {
-      id: 2,  // eg: `src/views/resource/Ear/2.vue`
-      colorRefer: "Base",
-      weight: 1,
-    },
-  ],
-
-  ...
-};
 ```
+GET /api?seed=<email|md5>
+```
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `seed` | string | Yes | Email address or MD5 hash |
+| `size` | number | No | Avatar size (default 380) |
+
+**Response:**
+
+- Content-Type: `image/svg+xml` or `image/png`
+- If Gravatar has avatar, returns PNG image (with `X-Source: gravatar` header)
+- If Gravatar has no avatar, returns SVG image (with `X-Source: generated` header)
+
+**Examples:**
+
+```bash
+# Get by email
+curl "http://localhost:3000/api?seed=user@example.com"
+
+# Get by MD5
+curl "http://localhost:3000/api?seed=d41d8cd98f00b204e9800998ecf8427e"
+
+# Specify size
+curl "http://localhost:3000/api?seed=user@example.com&size=200"
+```
+
+### Health Check
+
+```
+GET /api/health
+```
+
+## Configuration
+
+Edit `config.json` file for configuration:
+
+```json
+{
+  "server": {
+    "port": 3000
+  },
+  "gravatar": {
+    "mirrorUrl": "https://www.gravatar.cn/avatar/%s",
+    "defaultSize": 200
+  },
+  "avatar": {
+    "defaultSize": 380,
+    "fallbackToGenerated": true
+  },
+  "cache": {
+    "maxAge": 86400
+  }
+}
+```
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `server.port` | Service port | 3000 |
+| `gravatar.mirrorUrl` | Gravatar mirror URL, `%s` is MD5 placeholder | `https://www.gravatar.cn/avatar/%s` |
+| `gravatar.defaultSize` | Gravatar default size | 200 |
+| `avatar.defaultSize` | Generated avatar default size | 380 |
+| `avatar.fallbackToGenerated` | Fall back to generated avatar when Gravatar fails | true |
+| `cache.maxAge` | Cache duration (seconds) | 86400 |
+
+## Customization
+
+### Layer Management
+
+Layers refer to `Base(head)`, `Hair(hair)`, etc.
+
+Avatars consist of different layers defined in the `layerList` array in `src/views/AvatarCreator/config/data.json`.
+
+### Asset Management
+
+Asset files are located in `src/views/AvatarCreator/resource` directory, organized by layer folders.
+
+Asset files are stored as `.svg` format, with variables marked using `{{color[N]}}`:
+
+```xml
+<path d="..." fill="{{color[0]}}" stroke="black" />
+```
+
+## Deployment
+
+### Production
+
+```bash
+# Build frontend
+npm run build
+
+# Start service (production mode)
+NODE_ENV=production node server.js
+```
+
+### Docker Deployment
+
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --production
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["node", "server.js"]
+```
+
+## Open Source License
+
+This project's source code is licensed under the [GNU LESSER GENERAL PUBLIC LICENSE](https://www.gnu.org/licenses/lgpl-3.0.html).
+
+## Support & Donation
+
+If you appreciate this project, consider supporting me with a [GitHub Sponsors](https://github.com/sponsors/CarmJos)!
+
+Thanks to JetBrains for providing open-source license support.
+
+[![](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://www.jetbrains.com/?from=https://github.com/CarmJos/avatar-generator)

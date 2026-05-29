@@ -1,0 +1,16 @@
+{
+  "server": {
+    "port": 3000
+  },
+  "gravatar": {
+    "mirrorUrl": "https://www.gravatar.cn/avatar/%s",
+    "defaultSize": 200
+  },
+  "avatar": {
+    "defaultSize": 380,
+    "fallbackToGenerated": true
+  },
+  "cache": {
+    "maxAge": 86400
+  }
+}

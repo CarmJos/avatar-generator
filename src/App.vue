@@ -1,41 +1,11 @@
 <template>
   <main id="app">
-    <PageHeader />
-    <router-view
-      @multiple-start="multipleExporting = true"
-      @multiple-end="multipleExporting = false"
-    />
-    <PageFooter />
-    <ipad-mouse
-      v-if="showIpadMouse"
-      :force-show-cursor="multipleExporting"
-      rectSelector=".__cursor_rect"
-      textSelector=".__cursor_text"
-    />
+    <router-view />
   </main>
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      multipleExporting: false,
-    };
-  },
-  components: {
-    IpadMouse: () => import("@/components/IpadMouse"),
-    PageHeader: () => import("./views/PageHeader"),
-    PageFooter: () => import("./views/PageFooter"),
-  },
-
-  computed: {
-    showIpadMouse() {
-      return !/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(
-        navigator.userAgent
-      );
-    },
-  },
-};
+export default {};
 </script>
 
 <style lang="scss">

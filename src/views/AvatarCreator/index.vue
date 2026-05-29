@@ -50,7 +50,6 @@
     </div>
 
     <div class="btns" style="margin-top: 40px;">
-      <!-- 随机按钮 -->
       <button
         id="refresh-btn"
         :disabled="exporting ? 'disabled' : false"
@@ -61,7 +60,6 @@
         <span>{{ $t("random-avatar") }}</span>
       </button>
 
-      <!-- 下载按钮 -->
       <button
         class="__cursor_rect"
         id="download-btn"
@@ -97,42 +95,31 @@
       </button>
     </div>
 
-    <!-- 资源说明 -->
-    <div class="resource-info">
-      <span class="__cursor_text">
-        {{ $t("resource-from") }}
-      </span>
-
-      <div class="sources">
-        <a
+    <div class="api-test-section">
+      <h3>API 测试</h3>
+      <div class="api-input-row">
+        <input
+          v-model="testSeed"
+          type="text"
+          class="api-input __cursor_text"
+          placeholder="输入 email 或 md5"
+        />
+        <button
           class="__cursor_rect"
-          href="https://www.figma.com/community/file/829741575478342595/Avatar-Illustration-System"
-          target="_blank"
+          id="api-test-btn"
+          @click="testApi"
         >
-          {{ $t("figma-community") }}
-        </a>
-
-        <span>+</span>
-        <a
-          class="__cursor_rect"
-          href="https://www.gaoxiazhitu.com/about"
-          target="_blank"
-        >
-          {{ $t("with-our-designer") }}
-        </a>
+          <i class="ri-link"></i>
+          <span>测试 API</span>
+        </button>
+      </div>
+      <div v-if="apiResult" class="api-result">
+        <img :src="apiResult" alt="API Result" />
+      </div>
+      <div class="api-info">
+        <code>GET /api?seed={{ testSeed || '<email|md5>' }}</code>
       </div>
     </div>
-
-    <!-- 联系我们 -->
-    <!-- <div class="contact-us-wrapper">
-      <div
-        class="contact-us __cursor_rect"
-        @click="toggleWechatGroupQrCard(true)"
-      >
-        <i class="ri-wechat-2-fill"></i>
-        <span>{{ $t("contcat-us") }}</span>
-      </div>
-    </div> -->
   </div>
 </template>
 
@@ -141,11 +128,7 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { Mixins } from "vue-property-decorator";
 import html2canvas from "html2canvas";
-
 import JSZip from "jszip";
-
-// @ts-ignore
-import confetti from "canvas-confetti";
 import AvatarCreatorMixin from "./creator.mixin";
 import { RenderType, GenderType } from "./interface/avatar.interface";
 
@@ -166,58 +149,34 @@ export default class AvatarCreator extends Mixins(AvatarCreatorMixin) {
   private backgroundColor = "#fff";
   private borderRadius = "12px";
 
-  private mask: any = null;
-  private showWechatGroupQrCard = false;
-
   private svgRaw = "";
-
-  private exportTypes = [
-    { label: "SVG", value: "svg" },
-    { label: "PNG", value: "png" },
-  ];
+  private testSeed = "";
+  private apiResult = "";
 
   mounted() {
     this.createAvatar();
   }
 
-  /**
-   * 生成头像
-   */
-  private async createAvatar(disableConfetti = false) {
-    const svgRaw = await this.createOne(
-      {
-        size: this.width,
-        renderer: RenderType.SVG,
-        amount: 1,
-        gender: GenderType.UNSET,
-      },
-      disableConfetti
-        ? () => {}
-        : () => {
-            this.applyConfettiAnimation();
-          }
-    );
+  private async createAvatar() {
+    const svgRaw = await this.createOne({
+      size: this.width,
+      renderer: RenderType.SVG,
+      amount: 1,
+      gender: GenderType.UNSET,
+    });
 
     this.svgRaw = svgRaw;
 
-    if (!disableConfetti) {
-      // 获取背景颜色
-      const tempWrapper = document.createElement("div");
-      tempWrapper.innerHTML = svgRaw;
-      const bgGroup = tempWrapper.querySelector("#gaoxia-avatar-Background");
-      if (bgGroup) {
-        const bgRect = bgGroup.querySelector("rect");
-        if (bgRect)
-          this.backgroundColor = bgRect.getAttribute("fill") || "#fff";
-      }
-    } else {
-      this.backgroundColor = "#fff";
+    const tempWrapper = document.createElement("div");
+    tempWrapper.innerHTML = svgRaw;
+    const bgGroup = tempWrapper.querySelector("#gaoxia-avatar-Background");
+    if (bgGroup) {
+      const bgRect = bgGroup.querySelector("rect");
+      if (bgRect)
+        this.backgroundColor = bgRect.getAttribute("fill") || "#fff";
     }
   }
 
-  /**
-   * 截取
-   */
   async capture() {
     this.exporting = true;
     this.borderRadius = "0";
@@ -240,11 +199,7 @@ export default class AvatarCreator extends Mixins(AvatarCreatorMixin) {
     });
   }
 
-  /**
-   * 批量制作
-   */
   async superMake() {
-    this.$emit("multiple-start");
     setTimeout(() => {
       this.exporting = true;
       this.showMask = true;
@@ -259,7 +214,7 @@ export default class AvatarCreator extends Mixins(AvatarCreatorMixin) {
 
       this.$nextTick(async () => {
         for (let i = 0; i < ammount; i++) {
-          this.createAvatar(true);
+          this.createAvatar();
           const dom: HTMLElement = document.querySelector(
             "#avatar-preview"
           ) as HTMLElement;
@@ -284,35 +239,9 @@ export default class AvatarCreator extends Mixins(AvatarCreatorMixin) {
         a.download = "avatar.zip";
         a.click();
         this.exporting = false;
-        this.$emit("multiple-end");
         this.showMask = false;
       });
     }, 0);
-  }
-
-  /**
-   * 从一个数组中随机获取
-   */
-  randomSelectWithWeight<T>(
-    type: T,
-    arr: Record<string, any>[],
-    valueKey = "id",
-    weightKey = "weight"
-  ): T {
-    const store: Array<T> = [];
-    arr.forEach((el) => {
-      const value = el[valueKey];
-      if (Object.prototype.toString.call(el[weightKey]) !== "[object Number]") {
-        throw Error("weight is not a Number");
-      } else {
-        const weight: number = el[weightKey] || 1;
-        for (let i = 0; i < weight; i++) store.push(value);
-      }
-    });
-    const randIndex =
-      parseInt((Math.random() * store.length * 10000).toFixed(0)) %
-      store.length;
-    return store[randIndex];
   }
 
   exportIgnoreMiddleware(el: HTMLElement) {
@@ -330,154 +259,9 @@ export default class AvatarCreator extends Mixins(AvatarCreatorMixin) {
     return false;
   }
 
-  /**
-   * 绘制彩带动画
-   */
-  private applyConfettiAnimation() {
-    const btn = document.querySelector("#refresh-btn");
-    if (!btn) return;
-    const rect = btn.getBoundingClientRect();
-    const { clientWidth, clientHeight } = document.body;
-    const centerOfBtnX = rect.left + rect.width / 2;
-    const centerOfBtnY = rect.top + rect.height / 2;
-    const centerOfBtnXPercent = centerOfBtnX / clientWidth;
-    const centerOfBtnYPercent = centerOfBtnY / clientHeight;
-
-    const _confetti = function(opt = {}) {
-      confetti({
-        particleCount: Math.floor(100 + Math.random() * 100),
-        angle: 80,
-        spread: 155, // 最大角度
-        startVelocity: 50, // 最大距离
-        decay: 0.9, // 减速： [0, 1]
-        gravity: 3,
-        ticks: 200, // 移动次数
-        origin: {
-          x: centerOfBtnXPercent,
-          y: centerOfBtnYPercent,
-        },
-        colors: [
-          "#F4D03F",
-          "#E20650",
-          "#1F618D",
-          "#3498DB",
-          "#E74C3C",
-          "#48C9B0",
-          "#34495E",
-          "#31FBE0",
-        ],
-        shapes: ["square"],
-        scalar: 1,
-        zIndex: clientWidth > 400 ? 0 : 100,
-
-        ...opt,
-      });
-    };
-    _confetti({
-      scalar: 1.4,
-    });
-    _confetti({
-      particleCount: 50,
-      // angle: 80,
-      spread: 65, // 最大角度
-      startVelocity: 60, // 最大距离
-      gravity: 2,
-    });
-    _confetti({
-      particleCount: 20,
-      angle: 80,
-      spread: 45,
-      startVelocity: 40,
-      colors: [
-        "#7b5cff",
-        "#6245e0",
-        "#b3c7ff",
-        "#8fa5e5",
-        "#5c86ff",
-        "#345dd1",
-      ],
-      scalar: 1.2,
-    });
-  }
-
-  private maskClickListener = (e: Event) => this.toggleWechatGroupQrCard(false);
-  private toggleWechatGroupQrCard(show: boolean) {
-    this.showWechatGroupQrCard = show;
-    // 移除mask
-    try {
-      if (this.mask) {
-        this.mask.removeEventListener("click", this.maskClickListener);
-        document.body.removeChild(this.mask);
-        this.mask = null;
-      }
-    } catch (err) {
-      console.log("Error to remove mask", err);
-    }
-    if (show) {
-      const mask = document.createElement("div");
-
-      mask.setAttribute(
-        "style",
-        `
-        width: 100%;
-        height: 100%;
-        position: fixed;
-        background-color: rgba(0,0,0,.4);
-        left: 0;
-        top: 0;
-        z-index: 1000;
-        backdrop-filter: saturate(180%) blur(20px);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      `
-      );
-      const card = document.createElement("div");
-      card.setAttribute(
-        "style",
-        `
-        width: 300px;
-        height: 400px;
-        padding: 20px;
-        background-color: #fff;
-        box-shadow: 0px 10px 20px rgba(0,0,0,.1), 0px 20px 40px rgba(0,0,0,0);
-        border-radius: 15px;
-        display: flex;
-        flex-direction: column;
-        align-items:center;
-        justify-content: center;
-      `
-      );
-
-      const img = document.createElement("img");
-      img.setAttribute("src", require("@/assets/wechat-qr.png"));
-      img.setAttribute("loading", "lazy");
-      img.setAttribute(
-        "style",
-        `
-        width: 100%;
-      `
-      );
-
-      const description = document.createElement("div");
-      const title = document.createElement("div");
-      const content = document.createElement("div");
-      title.innerText = "Wave";
-      content.innerHTML =
-        "🔧 面向未来的数据可视化分析工具。<br />💬 分享世界精彩的可视化内容。";
-      title.setAttribute("style", "font-size: 1.3rem;font-weight: bold;");
-      content.setAttribute("style", "font-size: 0.8rem;");
-      description.appendChild(title);
-      description.appendChild(content);
-
-      card.appendChild(img);
-      card.appendChild(description);
-      mask.appendChild(card);
-
-      mask.addEventListener("click", this.maskClickListener);
-      this.mask = mask;
-      document.body.appendChild(mask);
-    }
+  testApi() {
+    if (!this.testSeed) return;
+    this.apiResult = `/api?seed=${encodeURIComponent(this.testSeed)}`;
   }
 }
 </script>
@@ -495,7 +279,6 @@ $primary: #0067b6;
   align-items: stretch;
   justify-content: center;
 
-  /* background-color: #fff; */
   background-color: rgba(255, 255, 255, 0.7);
   border-radius: 12px;
   padding: 50px 30px 20px 30px;
@@ -533,8 +316,6 @@ $primary: #0067b6;
     i {
       margin-right: 10px;
     }
-
-    transition: all 0.3s ease;
 
     &#refresh-btn {
       background-color: $primary;
@@ -610,102 +391,65 @@ $primary: #0067b6;
 #avatar-creator.exporting #avatar-preview::after {
   visibility: hidden !important;
 }
-#avatar-preview-outter-wrapper {
-  transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0s;
-  &:hover {
-    transform: scale(1.02);
-  }
-}
 
-.resource-info {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
-  color: #aaa;
-  flex-wrap: wrap;
-  padding: 20px 0 10px 0;
-  transition: all 0.3s ease;
-  a {
-    color: #aaa;
-    /* color: $primary; */
-    text-decoration: none;
-    margin-left: 2px;
-    font-weight: bold;
-    padding: 5px 10px;
-    transition: all 0.15s ease;
+.api-test-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+
+  h3 {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 10px;
+    font-weight: normal;
+  }
+
+  .api-input-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .api-input {
+    flex: 1;
+    height: 36px;
+    font-size: 0.85rem;
+  }
+
+  #api-test-btn {
+    height: 36px;
+    background-color: rgba($primary, 0.1);
+    color: $primary;
+    font-size: 0.85rem;
+    padding: 0 15px;
 
     &:hover {
-      color: $primary;
+      background-color: rgba($primary, 0.2);
     }
   }
 
-  a,
-  span {
-    white-space: nowrap;
-  }
-  .sources {
-    display: flex;
-    align-items: center;
-  }
-}
+  .api-result {
+    margin-top: 15px;
+    text-align: center;
 
-.contact-us-wrapper {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #aaa;
-  position: relative;
-
-  .contact-us {
-    padding: 5px 20px;
-    font-size: 0.8rem;
-    color: inherit;
-    display: flex;
-    align-items: center;
-    transition: all 0.4s ease;
-    i {
-      margin-right: 6px;
-      font-size: 1rem;
+    img {
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 8px;
+      border: 1px solid #eee;
     }
   }
-}
-#wechat-group-qr-card {
-  width: 300px;
-  height: 350px;
-  padding: 20px;
-  position: fixed;
-  background-color: #fff;
-  z-index: 99999;
-  /* bottom: calc(100% + 10px); */
-  border-radius: 20px;
-  box-shadow: 0px -20px 40px rgba(0, 0, 0, 0.1),
-    0px 10px 20px rgba(0, 0, 0, 0.05);
-  img {
-    width: 100%;
-    border-radius: inherit;
-  }
 
-  transform: scale(0) translateY(0px);
-  opacity: 0;
-  transition: all 0.23s ease;
-  transform-origin: 50% 120%;
-  &::after {
-    position: absolute;
-    content: "";
-    width: 0;
-    height: 0;
-    border: 10px solid transparent;
-    border-top-color: #fff;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  &.show-wechat-group-qr-card {
-    transform: scale(1) translateY(0);
-    opacity: 1;
+  .api-info {
+    margin-top: 10px;
+    font-size: 0.75rem;
+    color: #999;
+
+    code {
+      background-color: #f5f5f5;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+    }
   }
 }
 
@@ -720,7 +464,6 @@ $primary: #0067b6;
 
 @media (prefers-color-scheme: dark) {
   #avatar-creator {
-    /* background-color: #393939; */
     background-color: rgba(80, 80, 80, 0.2);
 
     input {
@@ -742,16 +485,23 @@ $primary: #0067b6;
       color: grey !important;
     }
 
-    #avatar-preview::after {
-      box-shadow: 0px 15px 24px var(--bg);
-      opacity: 0.3;
+    .api-test-section {
+      border-top-color: #555;
+
+      h3 {
+        color: #aaa;
+      }
+
+      .api-info code {
+        background-color: #444;
+        color: #ccc;
+      }
     }
   }
 }
 
 body.darkmode:not(.darkmode-off) {
   #avatar-creator {
-    /* background-color: #393939; */
     background-color: rgba(80, 80, 80, 0.2);
 
     input {
@@ -773,9 +523,17 @@ body.darkmode:not(.darkmode-off) {
       color: grey !important;
     }
 
-    #avatar-preview::after {
-      box-shadow: 0px 15px 24px var(--bg);
-      opacity: 0.3;
+    .api-test-section {
+      border-top-color: #555;
+
+      h3 {
+        color: #aaa;
+      }
+
+      .api-info code {
+        background-color: #444;
+        color: #ccc;
+      }
     }
   }
 }

@@ -1,0 +1,689 @@
+{
+  "enums": {
+    "RenderType": {
+      "SVG": "0",
+      "JPEG": "1",
+      "BASE64": "2"
+    },
+    "GenderType": {
+      "UNSET": "0",
+      "MALE": "1",
+      "FEMAL": "2"
+    },
+    "LAYER_ID": {
+      "BASE": "base",
+      "EAR": "ear",
+      "EAR_RING": "earRing",
+      "EYE_BROWS": "eyeBrows",
+      "EYES": "eyes",
+      "FACIAL_HAIR": "facialHair",
+      "GLASSES": "glasses",
+      "HAIR": "hair",
+      "HAT": "hat",
+      "MOUTH": "mouth",
+      "NOSE": "nose",
+      "SHIRT": "shirt",
+      "BACKGROUND": "background",
+      "MASK": "mask",
+      "HEADWEAR": "headwear"
+    }
+  },
+  "avaiableColors": {
+    "base": [
+      { "weight": 20, "value": ["#F9C9B6"] },
+      { "weight": 2, "value": ["#AC6651"] },
+      { "weight": 2, "value": ["#77311D"] },
+      { "weight": 1, "value": ["#FFDACB"] }
+    ],
+    "hair": [
+      { "weight": 1, "value": ["#000000"] },
+      { "weight": 1, "value": ["#ffffff"] },
+      { "weight": 1, "value": ["#F4D150"] },
+      { "weight": 1, "value": ["#FC909F"] },
+      { "weight": 1, "value": ["#6BD9E9"] },
+      { "weight": 1, "value": ["#9287FF"] },
+      { "weight": 1, "value": ["#362100"] },
+      { "weight": 1, "value": ["#562400"] },
+      { "weight": 1, "value": ["#5B3800"] },
+      { "weight": 1, "value": ["#FF4D6B"] },
+      { "weight": 1, "value": ["#000056"] },
+      { "weight": 1, "value": ["#CB7F50"] },
+      { "weight": 1, "value": ["#F6CF45"] },
+      { "weight": 1, "value": ["#876565"] }
+    ],
+    "shirt": [
+      { "weight": 1, "value": ["#000000", "#AFAFAF"] },
+      { "weight": 1, "value": ["#ffffff", "#A1A1A1"] },
+      { "weight": 1, "value": ["#F4D150", "#FFEBA4"] },
+      { "weight": 1, "value": ["#FC909F", "#FFEDEF"] },
+      { "weight": 1, "value": ["#6BD9E9", "#D2EFF3"] },
+      { "weight": 1, "value": ["#9287FF", "#E0DDFF"] },
+      { "weight": 1, "value": ["#E97C17", "#d4975e"] },
+      { "weight": 1, "value": ["#B4B0CD", "#e4e2f1"] },
+      { "weight": 1, "value": ["#878787", "#b6b6b6"] },
+      { "weight": 1, "value": ["#CA475A", "#d86072"] },
+      { "weight": 1, "value": ["#0C4F2F", "#3d8160"] },
+      { "weight": 1, "value": ["#354161", "#579b7a"] }
+    ],
+    "facialHair": [
+      { "weight": 1, "value": ["#222F37"] },
+      { "weight": 1, "value": ["#612507"] },
+      { "weight": 1, "value": ["#F3D010"] }
+    ],
+    "background": [
+      { "weight": 1, "value": ["#E0DDFF"] },
+      { "weight": 1, "value": ["#D2EFF3"] },
+      { "weight": 1, "value": ["#FFEDEF"] },
+      { "weight": 1, "value": ["#FFEBA4"] },
+      { "weight": 1, "value": ["#F4D150"] },
+      { "weight": 1, "value": ["#FC909F"] },
+      { "weight": 1, "value": ["#6BD9E9"] },
+      { "weight": 1, "value": ["#9287FF"] }
+    ],
+    "ear": [],
+    "earRing": [],
+    "eyes": [],
+    "eyeBrows": [],
+    "glasses": [],
+    "hat": [],
+    "mouth": [],
+    "nose": [],
+    "mask": [],
+    "headwear": []
+  },
+  "layerList": [
+    {
+      "id": "base",
+      "dir": "Base",
+      "description": "头部",
+      "zIndex": 100,
+      "layers": [
+        {
+          "filename": "1",
+          "genderType": "0",
+          "weight": 10,
+          "avaiableColorGroupsKey": "base"
+        },
+        {
+          "filename": "QY-02",
+          "genderType": "0",
+          "weight": 10,
+          "avaiableColorGroupsKey": "base"
+        }
+      ]
+    },
+    {
+      "id": "ear",
+      "dir": "Ear",
+      "description": "耳朵",
+      "zIndex": 500,
+      "layers": [
+        {
+          "filename": "Attached",
+          "genderType": "0",
+          "weight": 10,
+          "colorSameAs": "base"
+        },
+        {
+          "filename": "Detached",
+          "genderType": "0",
+          "weight": 10,
+          "colorSameAs": "base"
+        }
+      ]
+    },
+    {
+      "id": "earRing",
+      "dir": "Ear Ring",
+      "description": "耳环",
+      "zIndex": 501,
+      "layers": [
+        {
+          "filename": "Hoop",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Stud",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "empty": true,
+          "genderType": "0",
+          "weight": 100
+        }
+      ]
+    },
+    {
+      "id": "eyeBrows",
+      "dir": "Eyebrows",
+      "description": "眉毛",
+      "zIndex": 200,
+      "layers": [
+        {
+          "filename": "dot",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Doubt",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Eyelashes Down-1",
+          "genderType": "2",
+          "weight": 10
+        },
+        {
+          "filename": "Eyelashes Down",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Eyelashes Up",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Up",
+          "genderType": "0",
+          "weight": 10
+        }
+      ]
+    },
+    {
+      "id": "eyes",
+      "dir": "Eyes",
+      "description": "眼睛",
+      "zIndex": 200,
+      "layers": [
+        {
+          "filename": "Disdain",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Eyes",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Eyeshadow",
+          "genderType": "2",
+          "weight": 10
+        },
+        {
+          "filename": "Large and small eyes",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Round",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Smiling",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "stare",
+          "genderType": "0",
+          "weight": 10
+        }
+      ]
+    },
+    {
+      "id": "facialHair",
+      "dir": "Facial Hair",
+      "description": "胡子",
+      "zIndex": 201,
+      "layers": [
+        {
+          "filename": "Scruff",
+          "genderType": "1",
+          "weight": 10,
+          "avaiableColorGroupsKey": "facialHair"
+        },
+        {
+          "empty": true,
+          "genderType": "0",
+          "weight": 100
+        }
+      ]
+    },
+    {
+      "id": "glasses",
+      "dir": "Glasses",
+      "description": "眼镜",
+      "zIndex": 600,
+      "layers": [
+        {
+          "filename": "egg",
+          "genderType": "0",
+          "weight": 5
+        },
+        {
+          "filename": "Round-1",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Round",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "star",
+          "genderType": "0",
+          "weight": 5
+        },
+        {
+          "empty": true,
+          "genderType": "0",
+          "weight": 60
+        }
+      ]
+    },
+    {
+      "id": "hair",
+      "dir": "Hair",
+      "description": "头发",
+      "zIndex": 400,
+      "layers": [
+        {
+          "filename": "Danny Phantom",
+          "genderType": "1",
+          "weight": 10,
+          "avaiableColorGroupsKey": "hair",
+          "colorNotSameAs": ["background"]
+        },
+        {
+          "filename": "Double Ponytail",
+          "genderType": "2",
+          "weight": 10,
+          "avaiableColorGroupsKey": "hair",
+          "colorNotSameAs": ["background"],
+          "removeLayers": ["facialHair"]
+        },
+        {
+          "filename": "Doug Funny",
+          "genderType": "1",
+          "weight": 10,
+          "avaiableColorGroupsKey": "hair",
+          "colorNotSameAs": ["background"]
+        },
+        {
+          "filename": "Fonze",
+          "genderType": "1",
+          "weight": 10,
+          "avaiableColorGroupsKey": "hair",
+          "colorNotSameAs": ["background"]
+        },
+        {
+          "filename": "Full",
+          "genderType": "2",
+          "weight": 10,
+          "avaiableColorGroupsKey": "hair",
+          "colorNotSameAs": ["background", "shirt"],
+          "removeLayers": ["facialHair"]
+        },
+        {
+          "filename": "handsome",
+          "genderType": "1",
+          "weight": 10,
+          "avaiableColorGroupsKey": "hair",
+          "colorNotSameAs": ["background"]
+        },
+        {
+          "filename": "Mr Clean",
+          "genderType": "1",
+          "weight": 10
+        },
+        {
+          "filename": "Mr T",
+          "genderType": "1",
+          "weight": 10,
+          "avaiableColorGroupsKey": "hair",
+          "colorNotSameAs": ["background"]
+        },
+        {
+          "filename": "Pixie",
+          "genderType": "2",
+          "weight": 10,
+          "avaiableColorGroupsKey": "hair",
+          "colorNotSameAs": ["background"],
+          "removeLayers": ["facialHair"]
+        },
+        {
+          "filename": "QY-03",
+          "genderType": "0",
+          "weight": 10,
+          "avaiableColorGroupsKey": "hair",
+          "colorNotSameAs": ["background"]
+        },
+        {
+          "filename": "QY-04",
+          "genderType": "2",
+          "weight": 10,
+          "avaiableColorGroupsKey": "hair",
+          "colorNotSameAs": ["background"],
+          "removeLayers": ["facialHair"]
+        },
+        {
+          "filename": "QY-05",
+          "genderType": "1",
+          "weight": 10,
+          "avaiableColorGroupsKey": "hair",
+          "colorNotSameAs": ["background"]
+        },
+        {
+          "filename": "Turban",
+          "genderType": "0",
+          "weight": 10,
+          "avaiableColorGroupsKey": "hair",
+          "colorNotSameAs": ["background"]
+        },
+        {
+          "filename": "爆炸头",
+          "genderType": "0",
+          "weight": 10,
+          "avaiableColorGroupsKey": "hair",
+          "colorNotSameAs": ["background"]
+        },
+        {
+          "filename": "大波浪",
+          "genderType": "2",
+          "weight": 10,
+          "avaiableColorGroupsKey": "hair",
+          "colorNotSameAs": ["background"]
+        },
+        {
+          "filename": "齐刘海",
+          "genderType": "2",
+          "weight": 10,
+          "avaiableColorGroupsKey": "hair",
+          "colorNotSameAs": ["background"]
+        },
+        {
+          "filename": "秃头",
+          "genderType": "1",
+          "weight": 5,
+          "avaiableColorGroupsKey": "hair",
+          "colorNotSameAs": ["background"]
+        },
+        {
+          "filename": "Short",
+          "genderType": "2",
+          "weight": 10,
+          "avaiableColorGroupsKey": "hair",
+          "colorNotSameAs": ["background"]
+        }
+      ]
+    },
+    {
+      "id": "headwear",
+      "dir": "Headwear",
+      "description": "头戴饰物",
+      "zIndex": 450,
+      "layers": [
+        {
+          "empty": true,
+          "weight": 30,
+          "genderType": "0"
+        }
+      ]
+    },
+    {
+      "id": "hat",
+      "dir": "Hat",
+      "description": "帽子",
+      "zIndex": 401,
+      "layers": [
+        {
+          "empty": true,
+          "genderType": "0",
+          "weight": 100
+        }
+      ]
+    },
+    {
+      "id": "mouth",
+      "dir": "Mouth",
+      "description": "嘴巴",
+      "zIndex": 202,
+      "layers": [
+        {
+          "filename": "Frown",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "indifferent",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Laughing",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Nervous",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "open",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Pucker",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "QY-01",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Sad",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Smile-1",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Smile-2",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Smile",
+          "genderType": "0",
+          "weight": 10
+        }
+      ]
+    },
+    {
+      "id": "nose",
+      "dir": "Nose",
+      "description": "鼻子",
+      "zIndex": 203,
+      "layers": [
+        {
+          "filename": "Curve",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Flat",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Pointed",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Round",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "tilt",
+          "genderType": "0",
+          "weight": 10
+        }
+      ]
+    },
+    {
+      "id": "shirt",
+      "dir": "Shirt",
+      "description": "衣服",
+      "zIndex": 200,
+      "layers": [
+        {
+          "filename": "chocker",
+          "genderType": "0",
+          "weight": 10,
+          "avaiableColorGroupsKey": "shirt",
+          "colorNotSameAs": ["background"]
+        },
+        {
+          "filename": "Collared",
+          "genderType": "0",
+          "weight": 10,
+          "avaiableColorGroupsKey": "shirt",
+          "colorNotSameAs": ["background"]
+        },
+        {
+          "filename": "Crew",
+          "genderType": "0",
+          "weight": 10,
+          "avaiableColorGroupsKey": "shirt",
+          "colorNotSameAs": ["background"]
+        },
+        {
+          "filename": "Leisure",
+          "genderType": "0",
+          "weight": 10,
+          "avaiableColorGroupsKey": "shirt",
+          "colorNotSameAs": ["background"]
+        },
+        {
+          "filename": "Open",
+          "genderType": "0",
+          "weight": 10,
+          "avaiableColorGroupsKey": "shirt",
+          "colorNotSameAs": ["background"]
+        }
+      ]
+    },
+    {
+      "id": "background",
+      "dir": "Background",
+      "description": "背景图层",
+      "zIndex": 0,
+      "layers": [
+        {
+          "filename": "clean",
+          "genderType": "0",
+          "weight": 10,
+          "avaiableColorGroupsKey": "background"
+        },
+        {
+          "filename": "pattern1",
+          "genderType": "0",
+          "weight": 1,
+          "avaiableColorGroupsKey": "background"
+        },
+        {
+          "filename": "pattern2",
+          "genderType": "0",
+          "weight": 1,
+          "avaiableColorGroupsKey": "background"
+        },
+        {
+          "filename": "pattern3",
+          "genderType": "0",
+          "weight": 1,
+          "avaiableColorGroupsKey": "background"
+        },
+        {
+          "filename": "pattern4",
+          "genderType": "0",
+          "weight": 1,
+          "avaiableColorGroupsKey": "background"
+        },
+        {
+          "filename": "pattern5",
+          "genderType": "0",
+          "weight": 1,
+          "avaiableColorGroupsKey": "background"
+        },
+        {
+          "filename": "pattern6",
+          "genderType": "0",
+          "weight": 1,
+          "avaiableColorGroupsKey": "background"
+        },
+        {
+          "filename": "pattern7",
+          "genderType": "0",
+          "weight": 1,
+          "avaiableColorGroupsKey": "background"
+        },
+        {
+          "filename": "pattern8",
+          "genderType": "0",
+          "weight": 1,
+          "avaiableColorGroupsKey": "background"
+        },
+        {
+          "filename": "pattern9",
+          "genderType": "0",
+          "weight": 1,
+          "avaiableColorGroupsKey": "background"
+        }
+      ]
+    },
+    {
+      "id": "mask",
+      "dir": "Mask",
+      "description": "口罩",
+      "zIndex": 501,
+      "layers": [
+        {
+          "filename": "3M",
+          "genderType": "0",
+          "weight": 10
+        },
+        {
+          "filename": "Cyberpunk",
+          "genderType": "0",
+          "weight": 5
+        },
+        {
+          "filename": "General",
+          "genderType": "0",
+          "weight": 20
+        },
+        {
+          "empty": true,
+          "genderType": "0",
+          "weight": 100
+        }
+      ]
+    }
+  ]
+}

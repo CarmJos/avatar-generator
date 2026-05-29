@@ -1,6 +1,5 @@
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
-import Home from "../views/Home.vue";
 import AvatarCreator from "../views/AvatarCreator/index.vue";
 
 Vue.use(VueRouter);
