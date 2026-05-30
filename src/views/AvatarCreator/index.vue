@@ -113,18 +113,21 @@
           <span>测试 API</span>
         </button>
       </div>
+      <label class="api-option-row __cursor_rect">
+        <input v-model="testUseGravatar" type="checkbox" />
+        <span>优先尝试 Gravatar</span>
+      </label>
       <div v-if="apiResult" class="api-result">
         <img :src="apiResult" alt="API Result" />
       </div>
       <div class="api-info">
-        <code>GET /api?seed={{ testSeed || '<email|md5>' }}</code>
+        <code>GET {{ apiTestUrl || '/api?seed=email|md5' }}</code>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
 import Component from "vue-class-component";
 import { Mixins } from "vue-property-decorator";
 import html2canvas from "html2canvas";
@@ -152,6 +155,19 @@ export default class AvatarCreator extends Mixins(AvatarCreatorMixin) {
   private svgRaw = "";
   private testSeed = "";
   private apiResult = "";
+  private testUseGravatar = false;
+  private apiBaseUrl = process.env.BASE_URL || "/";
+
+  private buildApiPath(path = ""): string {
+    const base = this.apiBaseUrl.endsWith("/") ? this.apiBaseUrl : `${this.apiBaseUrl}/`;
+    const normalizedPath = path.replace(/^\//, "");
+    return `${base}${normalizedPath}`;
+  }
+
+  private get apiTestUrl(): string {
+    if (!this.testSeed) return "";
+    return `${this.buildApiPath("api")}?seed=${encodeURIComponent(this.testSeed)}&gravatar=${this.testUseGravatar}`;
+  }
 
   mounted() {
     this.createAvatar();
@@ -261,7 +277,7 @@ export default class AvatarCreator extends Mixins(AvatarCreatorMixin) {
 
   testApi() {
     if (!this.testSeed) return;
-    this.apiResult = `/api?seed=${encodeURIComponent(this.testSeed)}`;
+    this.apiResult = this.apiTestUrl;
   }
 }
 </script>
@@ -409,6 +425,15 @@ $primary: #0067b6;
     gap: 10px;
   }
 
+  .api-option-row {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: #666;
+  }
+
   .api-input {
     flex: 1;
     height: 36px;
@@ -453,7 +478,7 @@ $primary: #0067b6;
   }
 }
 
-@media screen and(max-width: 400px) {
+@media screen and (max-width: 400px) {
   #avatar-creator {
     width: 100%;
     max-width: 100%;
@@ -492,6 +517,10 @@ $primary: #0067b6;
         color: #aaa;
       }
 
+      .api-option-row {
+        color: #aaa;
+      }
+
       .api-info code {
         background-color: #444;
         color: #ccc;
@@ -527,6 +556,10 @@ body.darkmode:not(.darkmode-off) {
       border-top-color: #555;
 
       h3 {
+        color: #aaa;
+      }
+
+      .api-option-row {
         color: #aaa;
       }
 

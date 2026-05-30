@@ -8,7 +8,8 @@
     "lint": "vue-cli-service lint",
     "i18n:report": "vue-cli-service i18n:report --src './src/**/*.?(js|vue)' --locales './src/locales/**/*.json'",
     "server": "node server.js",
-    "start": "npm run build && NODE_ENV=production node server.js"
+    "dev": "npm run serve",
+    "start": "npm run build && node server.js"
   },
   "dependencies": {
     "core-js": "^3.6.5",
@@ -36,10 +37,11 @@
     "@vue/cli-plugin-vuex": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
     "@vue/eslint-config-typescript": "^5.0.2",
-    "dart-sass": "^1.25.0",
+    "concurrently": "^7.6.0",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
-    "sass": "^1.49.9",
+    "http-proxy-middleware": "^2.0.6",
+    "sass": "1.49.9",
     "sass-loader": "^8.0.2",
     "typescript": "~3.9.3",
     "vue-cli-plugin-i18n": "~1.0.1",

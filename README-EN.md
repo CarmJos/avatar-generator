@@ -31,7 +31,7 @@ An avatar generator with API support that generates fixed random avatars from se
 ### Requirements
 
 - Node.js >= 14.0.0
-- npm or yarn
+- npm
 
 ### Installation & Running
 
@@ -42,12 +42,34 @@ cd avatar-generator
 
 # Install dependencies
 npm install
-
-# Start service (includes frontend and API)
-npm run server
 ```
 
-After service starts, visit `http://localhost:3000` to use.
+### Development Mode
+
+Start both frontend dev server and backend API server:
+
+```bash
+npm run dev
+```
+
+- Frontend page: `http://localhost:8059`
+- API service: `http://localhost:8059`
+
+### Production Mode
+
+Build frontend and start unified service:
+
+```bash
+npm run start
+```
+
+Visit `http://localhost:8059` to use both frontend page and API.
+
+### Backend API Only
+
+```bash
+npm run server
+```
 
 ### Frontend Development Only
 
@@ -69,24 +91,28 @@ GET /api?seed=<email|md5>
 |-----------|------|----------|-------------|
 | `seed` | string | Yes | Email address or MD5 hash |
 | `size` | number | No | Avatar size (default 380) |
+| `gravatar` | boolean | No | Whether to try Gravatar first (default `false`) |
 
 **Response:**
 
 - Content-Type: `image/svg+xml` or `image/png`
-- If Gravatar has avatar, returns PNG image (with `X-Source: gravatar` header)
-- If Gravatar has no avatar, returns SVG image (with `X-Source: generated` header)
+- When `gravatar=true` and Gravatar has an avatar, returns PNG image (with `X-Source: gravatar` header)
+- In all other cases, returns SVG image (with `X-Source: generated` header)
 
 **Examples:**
 
 ```bash
-# Get by email
-curl "http://localhost:3000/api?seed=user@example.com"
+# Generate directly (default: do not request Gravatar)
+curl "http://localhost:8059/api?seed=user@example.com"
 
 # Get by MD5
-curl "http://localhost:3000/api?seed=d41d8cd98f00b204e9800998ecf8427e"
+curl "http://localhost:8059/api?seed=d41d8cd98f00b204e9800998ecf8427e"
 
 # Specify size
-curl "http://localhost:3000/api?seed=user@example.com&size=200"
+curl "http://localhost:8059/api?seed=user@example.com&size=200"
+
+# Enable Gravatar-first behavior
+curl "http://localhost:8059/api?seed=user@example.com&gravatar=true"
 ```
 
 ### Health Check
@@ -102,15 +128,13 @@ Edit `config.json` file for configuration:
 ```json
 {
   "server": {
-    "port": 3000
+    "port": 8059
   },
   "gravatar": {
-    "mirrorUrl": "https://www.gravatar.cn/avatar/%s",
-    "defaultSize": 200
+    "mirrorUrl": "https://www.gravatar.cn/avatar/%s"
   },
   "avatar": {
-    "defaultSize": 380,
-    "fallbackToGenerated": true
+    "defaultSize": 380
   },
   "cache": {
     "maxAge": 86400
@@ -120,11 +144,9 @@ Edit `config.json` file for configuration:
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `server.port` | Service port | 3000 |
+| `server.port` | API service port | 8059 |
 | `gravatar.mirrorUrl` | Gravatar mirror URL, `%s` is MD5 placeholder | `https://www.gravatar.cn/avatar/%s` |
-| `gravatar.defaultSize` | Gravatar default size | 200 |
 | `avatar.defaultSize` | Generated avatar default size | 380 |
-| `avatar.fallbackToGenerated` | Fall back to generated avatar when Gravatar fails | true |
 | `cache.maxAge` | Cache duration (seconds) | 86400 |
 
 ## Customization
@@ -150,12 +172,15 @@ Asset files are stored as `.svg` format, with variables marked using `{{color[N]
 ### Production
 
 ```bash
-# Build frontend
-npm run build
+# Build frontend and start service
+npm run start
 
-# Start service (production mode)
+# Or execute separately
+npm run build
 NODE_ENV=production node server.js
 ```
+
+In production mode, visiting `http://localhost:8059` will directly serve the built frontend page.
 
 ### Docker Deployment
 
@@ -163,10 +188,11 @@ NODE_ENV=production node server.js
 FROM node:18-alpine
 WORKDIR /app
 COPY package*.json ./
-RUN npm install --production
+RUN npm install
 COPY . .
 RUN npm run build
-EXPOSE 3000
+EXPOSE 8059
+ENV NODE_ENV=production
 CMD ["node", "server.js"]
 ```
 

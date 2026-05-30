@@ -31,7 +31,7 @@ _**"基于种子的随机头像生成，支持 Gravatar 集成"**_
 ### 环境要求
 
 - Node.js >= 14.0.0
-- npm 或 yarn
+- npm
 
 ### 安装与运行
 
@@ -42,12 +42,34 @@ cd avatar-generator
 
 # 安装依赖
 npm install
-
-# 启动服务（包含前端和 API）
-npm run server
 ```
 
-服务启动后访问 `http://localhost:3000` 即可使用。
+### 开发模式
+
+同时启动前端开发服务器和后端 API 服务器：
+
+```bash
+npm run dev
+```
+
+- 前端页面：`http://localhost:8059`
+- API 服务：`http://localhost:8059`
+
+### 生产模式
+
+构建前端并启动一体化服务：
+
+```bash
+npm run start
+```
+
+访问 `http://localhost:8059` 即可使用前端页面和 API。
+
+### 仅后端 API
+
+```bash
+npm run server
+```
 
 ### 仅前端开发
 
@@ -69,24 +91,28 @@ GET /api?seed=<email|md5>
 |------|------|------|------|
 | `seed` | string | 是 | email 地址或 MD5 哈希值 |
 | `size` | number | 否 | 头像尺寸（默认 380） |
+| `gravatar` | boolean | 否 | 是否优先尝试 Gravatar（默认 `false`） |
 
 **响应：**
 
 - Content-Type: `image/svg+xml` 或 `image/png`
-- 如果 Gravatar 有头像，返回 PNG 图片（带 `X-Source: gravatar` 头）
-- 如果 Gravatar 无头像，返回 SVG 图片（带 `X-Source: generated` 头）
+- 当 `gravatar=true` 且 Gravatar 有头像时，返回 PNG 图片（带 `X-Source: gravatar` 头）
+- 其他情况返回 SVG 图片（带 `X-Source: generated` 头）
 
 **示例：**
 
 ```bash
-# 通过 email 获取
-curl "http://localhost:3000/api?seed=user@example.com"
+# 直接生成（默认不请求 Gravatar）
+curl "http://localhost:8059/api?seed=user@example.com"
 
 # 通过 MD5 获取
-curl "http://localhost:3000/api?seed=d41d8cd98f00b204e9800998ecf8427e"
+curl "http://localhost:8059/api?seed=d41d8cd98f00b204e9800998ecf8427e"
 
 # 指定尺寸
-curl "http://localhost:3000/api?seed=user@example.com&size=200"
+curl "http://localhost:8059/api?seed=user@example.com&size=200"
+
+# 启用 Gravatar 优先
+curl "http://localhost:8059/api?seed=user@example.com&gravatar=true"
 ```
 
 ### 健康检查
@@ -102,15 +128,13 @@ GET /api/health
 ```json
 {
   "server": {
-    "port": 3000
+    "port": 8059
   },
   "gravatar": {
-    "mirrorUrl": "https://www.gravatar.cn/avatar/%s",
-    "defaultSize": 200
+    "mirrorUrl": "https://www.gravatar.cn/avatar/%s"
   },
   "avatar": {
-    "defaultSize": 380,
-    "fallbackToGenerated": true
+    "defaultSize": 380
   },
   "cache": {
     "maxAge": 86400
@@ -120,11 +144,9 @@ GET /api/health
 
 | 配置项 | 说明 | 默认值 |
 |--------|------|--------|
-| `server.port` | 服务端口 | 3000 |
+| `server.port` | API 服务端口 | 8059 |
 | `gravatar.mirrorUrl` | Gravatar 镜像 URL，`%s` 为 MD5 占位符 | `https://www.gravatar.cn/avatar/%s` |
-| `gravatar.defaultSize` | Gravatar 默认尺寸 | 200 |
 | `avatar.defaultSize` | 生成头像默认尺寸 | 380 |
-| `avatar.fallbackToGenerated` | Gravatar 失败时是否回退到生成头像 | true |
 | `cache.maxAge` | 缓存时间（秒） | 86400 |
 
 ## 定制
@@ -150,12 +172,15 @@ GET /api/health
 ### 生产环境
 
 ```bash
-# 构建前端
-npm run build
+# 构建前端并启动服务
+npm run start
 
-# 启动服务（生产模式）
+# 或者分步执行
+npm run build
 NODE_ENV=production node server.js
 ```
+
+生产模式下，访问 `http://localhost:8059` 会直接提供构建后的前端页面。
 
 ### Docker 部署
 
@@ -163,10 +188,11 @@ NODE_ENV=production node server.js
 FROM node:18-alpine
 WORKDIR /app
 COPY package*.json ./
-RUN npm install --production
+RUN npm install
 COPY . .
 RUN npm run build
-EXPOSE 3000
+EXPOSE 8059
+ENV NODE_ENV=production
 CMD ["node", "server.js"]
 ```
 
